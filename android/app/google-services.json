@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "117080624655",
+    "firebase_url": "https://myapp-ml-kit.firebaseio.com",
+    "project_id": "myapp-ml-kit",
+    "storage_bucket": "myapp-ml-kit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117080624655:android:5e1408675cd0b1ee",
+        "android_client_info": {
+          "package_name": "com.example.vena67.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "117080624655-8q2hivmfccreer761f8nnj4v1vlgor05.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7kEb3mtuxTzh_F3WcJLj8CjjyLV2xe5w"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
