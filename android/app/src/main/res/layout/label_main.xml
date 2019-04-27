@@ -49,27 +49,4 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-       <RadioGroup
-           android:id="@+id/radioGroup"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:orientation="horizontal">
-
-           <RadioButton
-               android:id="@+id/onDeviceRadio"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="OnDevice Model"/>
-           <RadioButton
-               android:id="@+id/cloudRadio"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="Cloud model"/>
-
-       </RadioGroup>
-    </LinearLayout>
-
 </LinearLayout>

@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -24,7 +23,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.RadioButton
 import android.widget.Toast
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -35,6 +33,7 @@ import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.label_main.*
+import kotlinx.android.synthetic.main.radio_group.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -50,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var photoFile: File
     var eKtpNumber: String = ""
     var dob: String = ""
+    var radioButtonSelected:Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -64,15 +64,22 @@ class MainActivity : AppCompatActivity() {
             chooseFromGallery()
         }
         scan_text.setOnClickListener {
-            val radioButton = findViewById<RadioButton>(radioGroup.checkedRadioButtonId)
-            if (radioButton.text.isEmpty()) {
+            if (-1 == radioButtonSelected) {
                 Toast.makeText(this, "Select type of 'Text Recognizer' Model", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
             resetValues()
             runTextRecognition()
         }
+
+        setupRadioGroup()
         requestStoragePermission()
+    }
+
+    private fun setupRadioGroup() {
+        radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            radioButtonSelected = checkedId
+        }
     }
 
     private fun resetValues() {
@@ -126,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 // Or, to change the default settings:
         val cloudRecognizer = FirebaseVision.getInstance().getCloudTextRecognizer(options)
         scan_text.isEnabled = false
-        val selectedRecognizer = if (radioGroup.checkedRadioButtonId == onDeviceRadio.id)  onDeviceRecognizer else cloudRecognizer
+        val selectedRecognizer = if (radioButtonSelected == onDeviceRadio.id)  onDeviceRecognizer else cloudRecognizer
         selectedRecognizer.processImage(image)
                 .addOnSuccessListener { texts ->
                     scan_text.isEnabled = true
