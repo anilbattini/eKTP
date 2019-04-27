@@ -7,6 +7,7 @@ import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.databinding.DataBindingUtil
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -32,7 +33,6 @@ import com.google.firebase.ml.vision.text.FirebaseVisionCloudTextRecognizerOptio
 import com.google.firebase.ml.vision.text.FirebaseVisionCloudTextRecognizerOptions.DENSE_MODEL
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.yalantis.ucrop.UCrop
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.label_main.*
 import java.io.File
@@ -41,7 +41,7 @@ import java.io.IOException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mSelectedImage: Bitmap
+
     private val APP_TAG = "MyApp ML Kit"
     private val CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1234
     private val PERMISSION_CAMERA = 10235
@@ -50,10 +50,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var photoFile: File
     var eKtpNumber: String = ""
     var dob: String = ""
+    private lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+//        setContentView(R.layout.activity_main)
+//        setSupportActionBar(toolbar)
+        val binding = DataBindingUtil.setContentView<com.example.vena67.myapplication.databinding.ContentMainBinding>(this, R.layout.content_main)
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        binding.viewModel = viewModel
         scan_text.isEnabled = false
         take_photo.setOnClickListener {
             resetValues()
@@ -64,13 +69,13 @@ class MainActivity : AppCompatActivity() {
             chooseFromGallery()
         }
         scan_text.setOnClickListener {
-            val radioButton = findViewById<RadioButton>(radioGroup.checkedRadioButtonId)
-            if (radioButton.text.isEmpty()) {
+            val radioButton = radioGroup.findViewById<RadioButton>(radioGroup.checkedRadioButtonId)
+            if (null == radioButton || radioButton.text.isEmpty()) {
                 Toast.makeText(this, "Select type of 'Text Recognizer' Model", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
             resetValues()
-            runTextRecognition()
+            viewModel.runTextRecognition()
         }
         requestStoragePermission()
     }
@@ -103,40 +108,6 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun runTextRecognition() {
-        val image = FirebaseVisionImage.fromBitmap(mSelectedImage)
-        /**
-         * This uses onDevice model. Means, it doesn't send our data to any cloud.
-         */
-        val onDeviceRecognizer = FirebaseVision.getInstance()
-                .onDeviceTextRecognizer
-        // Or, to provide language hints to assist with language detection:
-// See https://cloud.google.com/vision/docs/languages for supported languages
-        val options = FirebaseVisionCloudTextRecognizerOptions.Builder()
-                .setLanguageHints(Arrays.asList("en", "id"))
-                .setModelType(DENSE_MODEL)
-                .build()
-        /**
-         * This cloud model. Means, it sends our data to Firebase cloud to get the results with more accuracy.
-         *
-         */
-//        val detector = FirebaseVision.getInstance().cloudTextRecognizer
-// Or, to change the default settings:
-        val cloudRecognizer = FirebaseVision.getInstance().getCloudTextRecognizer(options)
-        scan_text.isEnabled = false
-        val selectedRecognizer = if (radioGroup.checkedRadioButtonId == onDeviceRadio.id)  onDeviceRecognizer else cloudRecognizer
-        selectedRecognizer.processImage(image)
-                .addOnSuccessListener { texts ->
-                    scan_text.isEnabled = true
-                    processTextRecognitionResult(texts)
-                }
-                .addOnFailureListener { e ->
-                    // Task failed with an exception
-                    scan_text.isEnabled = true
-                    e.printStackTrace()
-                }
     }
 
     private fun processTextRecognitionResult(texts: FirebaseVisionText?) {
@@ -228,16 +199,16 @@ class MainActivity : AppCompatActivity() {
             if (data != null) {
                 val photoUri = data.data
                 // Do something with the photo based on Uri
-                mSelectedImage = MediaStore.Images.Media.getBitmap(this.contentResolver, photoUri)
+                viewModel.setSelectedImage(MediaStore.Images.Media.getBitmap(this.contentResolver, photoUri))
                 // Load the selected image into a preview
-                image_view.setImageBitmap(mSelectedImage)
+//                image_view.setImageBitmap(mSelectedImage)
                 scan_text.isEnabled = true
             }
         } else if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            mSelectedImage = BitmapFactory.decodeFile(photoFile.absolutePath)
+            viewModel.setSelectedImage(BitmapFactory.decodeFile(photoFile.absolutePath))
             scan_text.isEnabled = true
             enableRadioGroupLayout()
-            image_view.setImageBitmap(mSelectedImage)
+//            image_view.setImageBitmap(mSelectedImage)
             saveFile(photoFile)
             print("size of final photo" + photoFile.length() / (1024))
         } else if (requestCode == PERMISSION_CAMERA) {
